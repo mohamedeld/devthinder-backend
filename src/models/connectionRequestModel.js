@@ -17,10 +17,14 @@ const connectionRequestSchema = new Schema({
         enum:{
             values:['accepted','interested','rejected','ignore'],
             message:`{VALUE} is incorrect status type`
-        }
+        },
+        required:[true,'status is required']
     }
 },{timestamps:true});
 
+connectionRequestSchema.methods.populdateUsers = async function(){
+    return await this.populate('fromUserId').populate('toUserId').execPopulate();
+}
 
 const ConnectionRequest = models.ConnectionRequest || model("ConnectionRequest", connectionRequestSchema);
 

@@ -1,6 +1,7 @@
 const AppError = require("../config/apiError");
 const asyncHandler = require("../config/asyncHandler");
 const User = require("../models/userModel");
+const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs");
 
 const signUp = asyncHandler(async(req,res,next)=>{
@@ -52,9 +53,9 @@ const protect = asyncHandler(async (request,response,next)=>{
     if (!token) {
       throw new Error("access denied")
     }
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     
-    const currentUser = await User.findById(decoded.userId);
+    const currentUser = await User.findById(decoded.id);
     if(!currentUser){
       throw new Error(
         "the user that belong to this token does no longer exist"
