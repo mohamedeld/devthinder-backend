@@ -41,3 +41,53 @@ const login = asyncHandler(async (req,res,next)=>{
         message:"user logged in successfully",
     })
 })
+
+const protect = asyncHandler(async (request,response,next)=>{
+  
+  
+    let token;
+    if(request.headers.authorization && request.headers.authorization.startsWith('Bearer')){
+      token = request.headers.authorization.split(' ')[1];
+    }
+    if (!token) {
+      throw new Error("access denied")
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    
+    const currentUser = await User.findById(decoded.userId);
+    if(!currentUser){
+      throw new Error(
+        "the user that belong to this token does no longer exist"
+      );
+    }
+    request.user = currentUser;
+    next();
+  
+});
+
+const allowedTo = (...roles) =>{
+  return (request, response, next) => {
+      if (!roles.includes(request.user.role)) {
+        return next(new Error("you don't have permission for this role", 403));
+      }
+      next();
+    } 
+  };
+
+  const logout = asyncHandler(async (req,res,next)=>{
+    // res.clearCookie('token');
+    res.cookie("token",null,{
+        expires:new Date(Date.now())
+    })
+    res.status(200).json({
+        message:"logout successfully"
+    })
+  })
+
+module.exports = {
+    signUp,
+    login,
+    protect,
+    logout,
+    allowedTo
+}

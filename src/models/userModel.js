@@ -25,6 +25,11 @@ const userSchema = new Schema(
       type: String,
       enum: ["Male", "Female"],
     },
+    photoUrl:{
+      type:String
+    },
+    about:String,
+    skills:[String]
   },
   { timestamps: true }
 );
