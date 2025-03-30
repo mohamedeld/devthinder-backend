@@ -3,6 +3,7 @@ const asyncHandler = require("../config/asyncHandler");
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcryptjs");
+const ConnectionRequest = require("../models/connectionRequestModel");
 
 const signUp = asyncHandler(async(req,res,next)=>{
     const {firstName,lastName,email,password} = req.body;
@@ -85,10 +86,29 @@ const allowedTo = (...roles) =>{
     })
   })
 
+
+const userConnection = asyncHandler(async(req,res,next)=>{
+  
+})
+const userRequests = asyncHandler(async(req,res,next)=>{
+  const loggedInUser = req?.user?._id;
+  const connectionRequests = await ConnectionRequest.find({
+    toUserId:loggedInUser,
+    status:"interested"
+  })
+
+  res.status(200).json({
+    requests:connectionRequests
+  })
+})
+
+
 module.exports = {
     signUp,
     login,
     protect,
     logout,
-    allowedTo
+    allowedTo,
+    userConnection,
+    userRequests
 }

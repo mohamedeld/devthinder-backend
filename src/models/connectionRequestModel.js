@@ -21,7 +21,7 @@ const connectionRequestSchema = new Schema({
         required:[true,'status is required']
     }
 },{timestamps:true});
-
+connectionRequestSchema.index({fromUserId:1,toUserId:1})
 connectionRequestSchema.pre('save',function(next){
     // check if fromUserId is same as toUserId
     if(this?.fromUserId?.equals(this?.toUserId)){

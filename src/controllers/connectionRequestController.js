@@ -37,7 +37,35 @@ const sendConnectionRequest = asyncHandler(async(req,res,next)=>{
     })
 })
 
+const reviewConnectionRequest = asyncHandler(async (req,res,next)=>{
+    const {status,requestId} = req?.params;
+    const loggedInUser = req?.user?._id;
+
+const allowedStatus = ["accepted","rejected"];
+    if(!allowedStatus?.includes(status)){
+        return next(new AppError("Invalid status type",400))
+    }
+
+    const connectionRequest = await ConnectionRequest.findOne({
+        _id:requestId,
+        toUserId:loggedInUser,
+        status:"interested"
+    });
+    if(!connectionRequest){
+        return next(new AppError('connection request is not found',400))
+    }
+    
+    connectionRequest.status = status;
+    const data = await connectionRequest.save();
+
+    res.status(200).json({
+        message:"Status changed successfully",
+        data
+    })
+})
+
 
 module.exports = {
-    sendConnectionRequest
+    sendConnectionRequest,
+    reviewConnectionRequest
 }
