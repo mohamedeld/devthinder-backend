@@ -15,12 +15,20 @@ const connectionRequestSchema = new Schema({
     status:{
         type:String,
         enum:{
-            values:['accepted','interested','rejected','ignore'],
+            values:['accepted','interested','rejected','ignored'],
             message:`{VALUE} is incorrect status type`
         },
         required:[true,'status is required']
     }
 },{timestamps:true});
+
+connectionRequestSchema.pre('save',function(next){
+    // check if fromUserId is same as toUserId
+    if(this?.fromUserId?.equals(this?.toUserId)){
+        throw new Error("can not send connection request to yourself");
+    }
+    next();
+})
 
 connectionRequestSchema.methods.populdateUsers = async function(){
     return await this.populate('fromUserId').populate('toUserId').execPopulate();
