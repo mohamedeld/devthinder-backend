@@ -30,9 +30,6 @@ connectionRequestSchema.pre('save',function(next){
     next();
 })
 
-connectionRequestSchema.methods.populdateUsers = async function(){
-    return await this.populate('fromUserId').populate('toUserId').execPopulate();
-}
 
 const ConnectionRequest = models.ConnectionRequest || model("ConnectionRequest", connectionRequestSchema);
 

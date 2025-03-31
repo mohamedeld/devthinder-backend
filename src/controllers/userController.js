@@ -88,13 +88,40 @@ const allowedTo = (...roles) =>{
 
 
 const userConnection = asyncHandler(async(req,res,next)=>{
-  
+  const loggedInUser = req?.user?._id;
+  const connectionRequests = await ConnectionRequest.find({
+    $or:[
+      {toUserId:loggedInUser,status:"accepted"},
+      {fromUserId:loggedInUser,status:"accepted"},
+    ]
+  }).populate({
+    path:"fromUserId",
+    select:"_id firstName lastName"
+  }).populate({
+    path:"toUserId",
+    select:"_id firstName lastName"
+  })
+  const data = connectionRequests?.map((row)=>{
+    if(row?.fromUserId === loggedInUser){
+      return row?.toUserId;
+    }
+    return row?.fromUserId;
+  })
+  res.status(200).json({
+    connections:data
+  })
 })
 const userRequests = asyncHandler(async(req,res,next)=>{
   const loggedInUser = req?.user?._id;
   const connectionRequests = await ConnectionRequest.find({
     toUserId:loggedInUser,
     status:"interested"
+  }).populate({
+    path:"fromUserId",
+    select:"_id firstName lastName"
+  }).populate({
+    path:"toUserId",
+    select:"_id firstName lastName"
   })
 
   res.status(200).json({
