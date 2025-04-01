@@ -111,6 +111,7 @@ const userConnection = asyncHandler(async(req,res,next)=>{
     connections:data
   })
 })
+
 const userRequests = asyncHandler(async(req,res,next)=>{
   const loggedInUser = req?.user?._id;
   const connectionRequests = await ConnectionRequest.find({
@@ -129,11 +130,29 @@ const userRequests = asyncHandler(async(req,res,next)=>{
   })
 })
 
+const userFeed = asyncHandler(async(req,res,next)=>{
+  const loggedInUser = req?.user?._id;
+  const connectionRequests = await ConnectionRequest.find({
+    $or:[
+      {fromUserId:loggedInUser},
+      {toUserId:loggedInUser}
+    ]
+  }).populate({
+    path:"fromUserId",
+    select:"firstName"
+  }).populate({
+    path:"toUserId",
+    select:"firstName"
+  })
+  res.status(200).json(connectionRequests)
+})
+
 
 module.exports = {
     signUp,
     login,
     protect,
+    userFeed,
     logout,
     allowedTo,
     userConnection,
